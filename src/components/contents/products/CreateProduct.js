@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import $ from 'jquery';
+import $, { type } from 'jquery';
 import { rutaAPI } from '../../../config/Config'
-import notie from 'react-notie';
+import notie from 'notie';
 
 
 
 
 export default function CreateProduct() {
 
-    //Captura de datos
+    //Hoks para capturar datos
 
     const [product, createProduct] = useState({
 
@@ -19,25 +19,25 @@ export default function CreateProduct() {
         stock: "",
         image: ""
 
-    })
+    });
 
+    //ONchange
     
+    const cambiaFormPut = e => {
+        let image = $("#image").get(0).files[0];
+          createProduct({
 
-    //onChange
-    const cambiaFormPost = e => {
 
-        createProduct({
-
-            ...product,
-            [e.target.name]: e.target.value
+            'name': $("#name").val(),
+            'price': $("#price").val(),
+            'sku': $("#sku").val(),
+            'description': $("#description").val(),
+            'stock': $("#stock").val(),
+            'image': image
 
         })
-
     }
-
-    //Onsubmit
-
-    const submitPost = async e => {
+    const submitPut = async e => {
 
         $('.alert').remove();
 
@@ -45,81 +45,82 @@ export default function CreateProduct() {
 
         const { name, price, sku, description, stock, image } = product;
 
-        //Validacion de campos vacios
-
+        //Validar campos 
         if (name === "") {
 
-            $(".invalid-name").show();
-            $(".invalid-name").html("Completa este campo");
+            $(".invalid-url").show();
+            $(".invalid-url").html("Completa este campo");
 
             return;
 
         }
         if (price === "") {
 
-            $(".invalid-price").show();
-            $(".invalid-price").html("Completa este campo");
-
+            $(".invalid-url").show();
+            $(".invalid-url").html("Completa este campo");
             return;
-
         }
         if (sku === "") {
 
-            $(".invalid-sku").show();
-            $(".invalid-sku").html("Completa este campo");
-
+            $(".invalid-url").show();
+            $(".invalid-url").html("Completa este campo");
             return;
-
         }
 
-        //validacion de campo
+
+
         if (description === "") {
 
-            $(".invalid-description").show();
-            $(".invalid-description").html("Completa este campo");
-
+            $(".invalid-url").show();
+            $(".invalid-url").html("Completa este campo");
             return;
-
         }
         if (stock === "") {
 
-            $(".invalid-description").show();
-            $(".invalid-description").html("Completa este campo");
-
+            $(".invalid-url").show();
+            $(".invalid-url").html("Completa este campo");
             return;
-
         }
+        if (image === null) {
 
-
-        //Solicitud post
-
+            $(".invalid-url").show();
+            $(".invalid-url").html("Completa este campo");
+            return;
+        }
         const result = await postData(product);
 
-        if (result.status== 500) {
+        if (result.status !==200) {
 
             $(".modal-footer").before(`<div class="alert alert-danger">${result.message}</div>`)
+          
+            setTimeout(() => { window.location.href = "/productos"; }, 3000)
+            
 
         }
-
         if (result.status === 200) {
-
             $(".modal-footer").before(`<div class="alert alert-success">${result.message}</div>`)
+           
 
             $('button[type="submit"]').remove();
-
+          
             setTimeout(() => { window.location.href = "/productos"; }, 1000)
+
 
         }
 
     }
 
+
+
+
+
     //Retornar vista
 
     return (
 
-        <div className="modal fade " id="createProduct" >
+        <div className="modal  " id="createProduct" >
             <div className="modal-dialog">
-                <div className="modal-content container with">
+                <div className="modal-content ">
 
                     <div className="modal-header mb-0">
                         <h4 className="modal-title">Nuevo Producto</h4>
@@ -127,7 +128,7 @@ export default function CreateProduct() {
                     </div>
 
 
-                    <form encType="multipart/form-data" onChange={cambiaFormPost} onSubmit={submitPost}>
+                    <form  onChange={cambiaFormPut} onSubmit={submitPut}  >
 
                         <div className="modal-body row">
 
@@ -138,7 +139,7 @@ export default function CreateProduct() {
                                 <div className="input-group mb-3">
 
                                     <input
-                                        id="Nombre"
+                                        id="name"
                                         name="name"
                                         type="text"
                                         className="form-control"
@@ -160,7 +161,7 @@ export default function CreateProduct() {
                                 <div className="input-group  mb-3">
 
                                     <input
-                                        id="precio"
+                                        id="price"
                                         type="number"
                                         name="price"
                                         className="form-control"
@@ -180,7 +181,7 @@ export default function CreateProduct() {
                                 <div className="input-group mb-3">
 
                                     <input
-                                        id="Nombre"
+                                        id="sku"
                                         name="sku"
                                         type="number"
                                         className="form-control"
@@ -202,7 +203,7 @@ export default function CreateProduct() {
 
 
                                     <textarea
-                                        id="Descripcion"
+                                        id="description"
                                         name="description"
                                         type="text"
                                         className="form-control"
@@ -225,7 +226,7 @@ export default function CreateProduct() {
                                 <div className="input mb-3">
 
                                     <input
-                                        id="Cantidad"
+                                        id="stock"
                                         name="stock"
                                         type="number"
                                         className="form-control"
@@ -241,25 +242,25 @@ export default function CreateProduct() {
                             </div>
                             <div className="form-group col-md-12 mb-0">
 
-                                <label className="small text-secondary" name="image" htmlFor="image">Imagen</label>
+                                <label className="small text-secondary" htmlFor="image">Imagen</label>
 
-                                <div className="input mb-3">       
-                                                           
-                                <input type="file" name="image" class="form-control-file" id="exampleFormControlFile1"/>
+                                <div className="input mb-3">
+
+                                    <input
+                                        type="file"
+                                        name="image"
+                                        id="image"
+                                        className="form-control-file border"
+                                        required
+                                    />
+
                                     <div className="invalid-feedback invalid-image"></div>
-                                    <img className="img-fluid" />
+
 
                                 </div>
 
                             </div>
-
-
-
-
-
-
                         </div>
-
 
                         <div className="modal-footer d-flex justify-content-between">
 
@@ -279,38 +280,32 @@ export default function CreateProduct() {
 
 }
 
-/*=============================================
-PETICIÓN POST ADMINISTRADORES
-=============================================*/
-
+//servicio post
 const postData = data => {
-
     const url = `${rutaAPI}/new-product`;
     const token = localStorage.getItem("TOKEN");
+    let formData = new FormData();
+    console.log("data img",data.image);
+    formData.append("sku", data.sku);
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    formData.append("price", data.price);
+    formData.append("stock", data.stock);
+    formData.append("image", data.image);
     const params = {
-
         method: "POST",
-        body: JSON.stringify(data),
+        body: formData,
         headers: {
-
-            "Authorization": token,
-            "Content-Type": "application/json"
+            "Authorization": token
         }
-
     }
-
     return fetch(url, params).then(response => {
-
+        console.log("response",response);
         return response.json();
-
     }).then(result => {
-
+        console.log("result",result);
         return result;
-
     }).catch(err => {
-
-        return err;
-
+        return err.error;
     })
-
 }

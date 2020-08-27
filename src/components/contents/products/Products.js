@@ -15,7 +15,7 @@ export default function Products() {
 
 		const dataSet = [];
 		getProducts.products.forEach((product, index) => {
-			dataSet[index] = [(index + 1), product.image, product.name, product.price, product.sku, product.description, product.stock, product._id]
+			dataSet[index] = [(index + 1), product.image, product.name, product.price, product.sku, product.description, product.stock ,[ product.image, product.name, product.price, product.sku, product.description, product.stock, product._id]]
 
 		})
 		//SE ejecuta dataTable
@@ -53,7 +53,7 @@ export default function Products() {
 	  
 							</a>
 	  
-							<a href="" class="delete" data='${data}'>
+							<a href="" class="delete" data='${data[6]}'>
 								
 							<button type="button" class="btn btn-danger btn-sm">Eliminar</button>
 							</a>`

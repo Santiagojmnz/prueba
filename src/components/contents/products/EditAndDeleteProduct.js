@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import $ from 'jquery';
 import { rutaAPI } from '../../../config/Config';
 import Swal from 'sweetalert2';
+import notie from 'notie';
 
 export default function EditAndDeleteProduct() {
-
-    //Captura de datos
-
-    const [product, updateProduct] = useState({
+    //Hook para capturar datos
+    const [product, editProduct] = useState({
 
         name: "",
         price: "",
@@ -15,140 +14,137 @@ export default function EditAndDeleteProduct() {
         description: "",
         stock: "",
         image: "",
-        _id:""
+        id: ""
 
-    })
+    });
 
-    //onChange
-    const cambiaFormPost = e => {
+    //Onchange
+    const cambiaFormPut = e => {
+        let image = $("#editImage").get(0).files[0];
+        if ($("#editImage").val()) {
+            editProduct({
+                'name': $("#editName").val(),
+                'price': $("#editPrice").val(),
+                'sku': $("#editSku").val(),
+                'description': $("#editDescription").val(),
+                'stock': $("#editStock").val(),
+                'image': image,
+                'id': $("#idProduct").val()
 
-        updateProduct({
+            })
 
-            ...product,
-            [e.target.name]: e.target.value
+        } if (!$("#editImage").val()) {
+            editProduct({
+                'name': $("#editName").val(),
+                'price': $("#editPrice").val(),
+                'sku': $("#editSku").val(),
+                'description': $("#editDescription").val(),
+                'stock': $("#editStock").val(),
+                'image': null,
+                'id': $("#idProduct").val()
 
-        })
+            })
 
+        }
     }
 
-    //Onsubmit
 
-    const submitPost = async e => {
-
+    //Onsubmit 
+    const submitPut = async e => {
         $('.alert').remove();
 
         e.preventDefault();
 
 
-        const { name, price, sku, description, stock, image  } = product;
 
-        //Validacion de campos vacios
+        const { name, price, sku, description, stock } = product;
+        //Validar campos 
         if (name === "") {
 
-            $(".invalid-name").show();
-            $(".invalid-name").html("Completa este campo");
+            $(".invalid-url").show();
+            $(".invalid-url").html("Completa este campo");
 
             return;
 
         }
         if (price === "") {
 
-            $(".invalid-price").show();
-            $(".invalid-price").html("Completa este campo");
-
+            $(".invalid-url").show();
+            $(".invalid-url").html("Completa este campo");
             return;
-
         }
         if (sku === "") {
 
-            $(".invalid-sku").show();
-            $(".invalid-sku").html("Completa este campo");
-
+            $(".invalid-url").show();
+            $(".invalid-url").html("Completa este campo");
             return;
-
         }
 
-        //validacion de campo
+
+
         if (description === "") {
 
-            $(".invalid-description").show();
-            $(".invalid-description").html("Completa este campo");
-
+            $(".invalid-url").show();
+            $(".invalid-url").html("Completa este campo");
             return;
-
         }
         if (stock === "") {
 
-            $(".invalid-description").show();
-            $(".invalid-description").html("Completa este campo");
-
+            $(".invalid-url").show();
+            $(".invalid-url").html("Completa este campo");
             return;
-
         }
-
-
-
-
-
-
-
-        //Solicitud post
-
         const result = await putData(product);
 
-        if (result.status !== 200) {
+        if (result.status != 200) {
 
             $(".modal-footer").before(`<div class="alert alert-danger">${result.message}</div>`)
 
+            setTimeout(() => { window.location.href = "/productos"; }, 3000)
+
+
         }
-
         if (result.status === 200) {
-
             $(".modal-footer").before(`<div class="alert alert-success">${result.message}</div>`)
+
 
             $('button[type="submit"]').remove();
 
             setTimeout(() => { window.location.href = "/productos"; }, 1000)
-            return;
+
 
         }
 
+
+
+
+
+
+
     }
-
-    //Retornar vista
-
-
-    //Se capturan datos para editar
+    //Capturamos datos apra editar
     $(document).on("click", ".editInputs", function (e) {
-        console.log("data",data)
-
         e.preventDefault();
 
-        var data = $(this).attr("data").split(',');
-        console.log(data);
-
-        $("#editName").val(data[0]);
-        $("#editSurname").val(data[1]);
-        $("#editEmail").val(data[2]);
-
-        updateProduct({
-
-
-            'name': $("#editName").val(),
-            'surname': $("#editSurname").val(),
-            'email': $("#editEmail").val(),
-            'password': $("#editPassword").val(),
-            '_id': data[0],
+        const data = $(this).attr("data").split(',');
+        $("#idProduct").val(data[6]);
+        $("#editName").val(data[1]);
+        $("#editPrice").val(data[2]);
+        $("#editSku").val(data[3]);
+        $("#editDescription").val(data[4]);
+        $("#editStock").val(data[5]);
 
 
-        })
+
+
     })
-    //Datos delete
+    //DAtos para eliminar producto
     $(document).on("click", ".delete", function (e) {
 
         e.preventDefault();
+        const data = $(this).attr("data").split(',');
+        console.log("DATA1", data);
 
-        var data = $(this).attr("data").split(',')[0];
         //Confirmar accion
 
         Swal.fire({
@@ -164,45 +160,45 @@ export default function EditAndDeleteProduct() {
                 //servicio Delete
                 const ProductDelete = async () => {
                     const result = await deleteData(data);
-                   
 
-                    if (result.status===200) {
+
+                    if (result.status === 200) {
 
                         Swal.fire({
-                            type:"success",
+                            type: "success",
                             title: result.message,
                             showConfirmButton: true,
                             confirmButtonText: "Cerrar"
-                                
-                        }).then(function(result){
-    
-                             if(result.value){
-    
-                                 window.location.href= "/Productos";
-    
-                             }
-    
+
+                        }).then(function (result) {
+
+                            if (result.value) {
+
+                                window.location.href = "/productos";
+
+                            }
+
                         })
-      
+
                     }
-                    if (result.status !==200) {
+                    if (result.status !== 200) {
                         Swal.fire({
-                            type:"error",
+                            type: "error",
                             title: result.message,
                             showConfirmButton: true,
                             confirmButtonText: "Cerrar"
-                                
-                        }).then(function(result){
-    
-                             if(result.value){
-    
-                                 window.location.href= "/Productos";
-    
-                             }
-    
+
+                        }).then(function (result) {
+
+                            if (result.value) {
+
+                                window.location.href = "/productos";
+
+                            }
+
                         })
 
-                          }
+                    }
 
 
 
@@ -216,30 +212,37 @@ export default function EditAndDeleteProduct() {
 
     })
 
+
+
+
+
+
+    //Vista de formulario
     return (
 
-        <div className="modal fade " id="createProduct" >
+        <div className="modal  " id="editProduct" >
             <div className="modal-dialog">
-                <div className="modal-content container with">
+                <div className="modal-content ">
 
                     <div className="modal-header mb-0">
-                        <h4 className="modal-title">Nuevo Producto</h4>
+                        <h4 className="modal-title">Editar Producto</h4>
                         <button type="button" className="close" data-dismiss="modal">&times;</button>
                     </div>
 
 
-                    <form encType="multipart/form-data" onChange={cambiaFormPost} onSubmit={submitPost}>
+                    <form onChange={cambiaFormPut} onSubmit={submitPut} encType="multipart/form-data"  >
 
                         <div className="modal-body row">
+                            <input type="hidden" id="idProduct" />
 
                             <div className="form-group col-md-12 mb-0">
 
-                                <label className="small text-secondary" htmlFor="Nombre">Nombre</label>
+                                <label className="small text-secondary" htmlFor="editName">Nombre</label>
 
                                 <div className="input-group mb-3">
 
                                     <input
-                                        id="Nombre"
+                                        id="editName"
                                         name="name"
                                         type="text"
                                         className="form-control"
@@ -256,12 +259,12 @@ export default function EditAndDeleteProduct() {
 
                             <div className="form-group col-md-6 mb-0">
 
-                                <label className="small text-secondary" htmlFor="Apellidos">Precio</label>
+                                <label className="small text-secondary" htmlFor="editPrice">Precio</label>
 
                                 <div className="input-group  mb-3">
 
                                     <input
-                                        id="precio"
+                                        id="editPrice"
                                         type="number"
                                         name="price"
                                         className="form-control"
@@ -276,12 +279,12 @@ export default function EditAndDeleteProduct() {
                             </div>
                             <div className="form-group col-md-6 mb-0">
 
-                                <label className="small text-secondary" htmlFor="Nombre">Sku</label>
+                                <label className="small text-secondary" htmlFor="editSku">Sku</label>
 
                                 <div className="input-group mb-3">
 
                                     <input
-                                        id="Nombre"
+                                        id="editSku"
                                         name="sku"
                                         type="number"
                                         className="form-control"
@@ -297,13 +300,13 @@ export default function EditAndDeleteProduct() {
                             </div>
                             <div className="form-group col-md-12 mb-0">
 
-                                <label className="small text-secondary" htmlFor="Nombre">Descripcion</label>
+                                <label className="small text-secondary" htmlFor="editDescription">Descripcion</label>
 
                                 <div className=" mb-3">
 
 
                                     <textarea
-                                        id="Descripcion"
+                                        id="editDescription"
                                         name="description"
                                         type="text"
                                         className="form-control"
@@ -314,19 +317,19 @@ export default function EditAndDeleteProduct() {
                                     />
 
 
-                                    <div className="invalid-feedback invalid-name"></div>
+                                    <div className="invalid-feedback invalid-description"></div>
 
                                 </div>
 
                             </div>
                             <div className="form-group col-md-12 mb-0 ">
 
-                                <label className="small text-secondary" htmlFor="Cantidad">Cantidad</label>
+                                <label className="small text-secondary" htmlFor="editStock">Cantidad</label>
 
                                 <div className="input mb-3">
 
                                     <input
-                                        id="Cantidad"
+                                        id="editStock"
                                         name="stock"
                                         type="number"
                                         className="form-control"
@@ -335,33 +338,33 @@ export default function EditAndDeleteProduct() {
 
                                     />
 
-                                    <div className="invalid-feedback invalid-name"></div>
+                                    <div className="invalid-feedback invalid-stock"></div>
 
                                 </div>
 
                             </div>
                             <div className="form-group col-md-12 mb-0">
 
-                                <label className="small text-secondary" htmlFor="image">Imagen</label>
+                                <label className="small text-secondary" htmlFor="editImage">Imagen</label>
 
                                 <div className="input mb-3">
 
-                                  
+                                    <input
+                                        type="file"
+                                        name="editImage"
+                                        id="editImage"
+                                        className="form-control-file border"
+
+
+                                    />
 
                                     <div className="invalid-feedback invalid-image"></div>
-                                    <img className="img-fluid" />
+
 
                                 </div>
 
                             </div>
-
-
-
-
-
-
                         </div>
-
 
                         <div className="modal-footer d-flex justify-content-between">
 
@@ -378,73 +381,69 @@ export default function EditAndDeleteProduct() {
         </div>
 
     )
-
 }
 
-//Peticion Update
-const putData = data => {
-    
-
-    const url = `${rutaAPI}/update-user/${data._id}`;
-    const token = localStorage.getItem("TOKEN");
-    const params = {
-
-        method: "PUT",
-        body: JSON.stringify(data),
-        headers: {
-
-            "Authorization": token,
-            "Content-Type": "application/json"
-        }
-
-    }
-
-    return fetch(url, params).then(response => {
-
-
-        return response.json();
-
-    }).then(result => {
-
-        return result;
-
-    }).catch(err => {
-
-        return err;
-
-    })
-
-}
 //Peticion Delete
-const deleteData = data => {
-    console.log("data",data)
+const deleteData = data =>{
 
-    const url = `${rutaAPI}/delete-product/${data}`;
-    const token = localStorage.getItem("TOKEN");
-    const params = {
+	const url = `${rutaAPI}/delete-product/${data}`;
+	const token = localStorage.getItem("TOKEN");
+	const params = {
 
-        method: "DELETE",
-        headers: {
+		method: "DELETE",
+		headers: {
 
-            "Authorization": token,
-            "Content-Type": "application/json"
-        }
+			"Authorization": token,
+			"Content-Type": "application/json"
+		}
 
-    }
+	}
 
-    return fetch(url, params).then(response => {
+	return fetch(url, params).then(response=>{
 
+		return response.json();
 
-        return response.json();
+	}).then(result=>{
 
-    }).then(result => {
+		return result;
 
-        return result;
+	}).catch(err=>{
 
-    }).catch(err => {
+		return err;
 
-        return err;
-
-    })
+	})
 
 }
+
+
+//servicio put
+const putData = data => {
+    const url = `${rutaAPI}/update-product/${data.id}`;
+    const token = localStorage.getItem("TOKEN");
+    let formData = new FormData();
+
+    formData.append("sku", data.sku);
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    formData.append("price", data.price);
+    formData.append("stock", data.stock);
+    formData.append("image", data.image);
+    const params = {
+        method: "PUT",
+        body: formData,
+        headers: {
+            "Authorization": token
+        }
+    }
+    return fetch(url, params).then(response => {
+        console.log("response", response);
+        return response.json();
+    }).then(result => {
+        console.log("result", result);
+        return result;
+    }).catch(err => {
+        return err.error;
+    })
+}
+
+
